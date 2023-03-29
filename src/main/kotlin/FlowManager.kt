@@ -123,16 +123,82 @@ class FlowManager {
             }
         }
 
-        fun registerOrder(){
+        fun registerOrder():Order{
             println("Este es nuestro nuevo sistema para ordenar. ¿Qué deseas ordenar?")
             Menu().getMenu()
             var itemSelection : String? = null
+
             while(itemSelection != "LISTO") {
                 itemSelection =  orderItem()
                 if(itemSelection != "LISTO") {
                     println("¿Deseas ordenar algo más?")
                 }
             }
+
+            println("¡Perfecto! A continuación se muestra tu orden:")
+            cart.showItems()
+            return Order(currentClient?.id ?: 0, cart.getTotal(), Date())
+        }
+
+        fun goToPayment(ord:Order){
+            println("Procedamos con el pago")
+            println("¿Qué medio deseas utilizar?")
+            println("1. Dinero en efectivo")
+            println("2. Tarjeta de crédito")
+            println("3. Tarjeta de regalo")
+
+            while(true){
+                try {
+                    val selection = readln().toInt()
+                    when(selection){
+                        1 -> makePayment(ord, ::handleMoney, ::end, ::handlePaymentError)
+                        2 -> makePayment(ord, ::handleCreditCard, ::end, ::handlePaymentError)
+                        3 -> makePayment(ord, ::handleGiftCard, ::end, ::handlePaymentError)
+                        else -> throw Exception("Fuera de rango")
+                    }
+                    return
+                } catch (e: ClassCastException) {
+                    println("Debes ingresar un número")
+                } catch (e: Exception) {
+                    println("Debes ingresar un número entre 1 y 3")
+                }
+            }
+
+        }
+
+        fun handleCreditCard(amount:Double):Boolean{
+            //dar al usuario la opcion de agregar una tarjeta
+            //o pagar con alguna que ya tiene registrada
+            return true
+        }
+
+        fun handleGiftCard(amount: Double):Boolean{
+            //dar al usuario la opcion de agregar una tarjeta
+            //o pagar con alguna que ya tiene registrada
+            return true
+        }
+
+        fun handleMoney(amount: Double):Boolean{
+            return Money().charge(amount)
+        }
+
+        fun makePayment(ord: Order, paymentHandler: (amount:Double)->Boolean, onSuccess: ()->Unit, onError:()->Unit){
+            if(paymentHandler(ord.total)){
+                onSuccess()
+            } else {
+                onError()
+                goToPayment(ord)
+            }
+        }
+
+        fun end(){
+            println("Tu orden ha sido completada y en un momento será entregada")
+            println("¡Qué la difrutes!")
+        }
+
+        fun handlePaymentError(){
+            println("Ocurrió un error con el pago")
+            println("Intenta de nuevo")
         }
     }
 }

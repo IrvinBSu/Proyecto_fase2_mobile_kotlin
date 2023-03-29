@@ -32,6 +32,8 @@ class Cart:IAdd<Pair<Double, Int>>, IShow<Pair<Double, Int>> {
             it -> println(it)
         }
 
+        println(getTotal())
+
     }
 
 }
