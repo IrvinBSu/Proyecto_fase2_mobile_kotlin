@@ -1,9 +1,12 @@
-data class Client (var name: String, var password: String){
+data class Client (
+    var name: String,
+    var password: String,
+    var creditCards:MutableList<CreditCard> = mutableListOf(),
+    var giftCards: MutableList<GiftCard> = mutableListOf(),
+    val orders:MutableList<Order> = mutableListOf()
+){
 
-    public var id:Int = (Math.random() * (1000 + 1)).toInt()
-    get():Int = id
-
-    private var cards:MutableList<PaymentMethod> = mutableListOf()
+    private var id:Int = (Math.random() * (1000 + 1)).toInt()
 
     init {
         println("Usuario creado")
@@ -14,11 +17,15 @@ data class Client (var name: String, var password: String){
         this.password = password
     }
 
+    public fun getId():Int{
+        return id
+    }
+
     fun addCreditCard(card:CreditCard){
-        cards.add(card)
+        creditCards.add(card)
     }
 
     fun addGiftCard(card:GiftCard){
-        cards.add(card)
+        giftCards.add(card)
     }
 }

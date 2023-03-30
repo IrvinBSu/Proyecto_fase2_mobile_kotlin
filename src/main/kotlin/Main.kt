@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 fun main(args: Array<String>) {
 
     FlowManager.start()
-    FlowManager.registerOrder()
+    val ord:Order = FlowManager.registerOrder()
+    FlowManager.goToPayment(ord)
 
 }

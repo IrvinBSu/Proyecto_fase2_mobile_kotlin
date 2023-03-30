@@ -4,8 +4,8 @@ class Cart:IAdd<Pair<Double, Int>>, IShow<Pair<Double, Int>> {
 
     override val items: MutableMap<String, Pair<Double, Int>> = mutableMapOf()
 
-    override fun addItem(item:String, price:Double){
-        val numItems = (items[item]?.second?.plus(1)) ?: 1
+    override fun addItem(item:String, price:Double, amount:Int){
+        val numItems = (items[item]?.second?.plus(amount)) ?: amount
         items[item] = Pair(price, numItems)
     }
 
@@ -32,7 +32,7 @@ class Cart:IAdd<Pair<Double, Int>>, IShow<Pair<Double, Int>> {
             it -> println(it)
         }
 
-        println(getTotal())
+        println("Total: ${getTotal()}")
 
     }
 
