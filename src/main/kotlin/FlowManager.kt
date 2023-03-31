@@ -17,8 +17,10 @@ class FlowManager {
         private val clients: MutableList<Client> = mutableListOf(
             Client("juan23",
                 "juan123",
-                mutableListOf(CreditCard("4453045671", "Juan Pérez", LocalDate.parse("2023-05-01"), 5000.0, 3000.0)),
-                mutableListOf(GiftCard("1234567890",2000.0))
+                mutableListOf(
+                    CreditCard("4453045671", "Juan Pérez", LocalDate.parse("2023-05-01"), 5000.0, 3000.0),
+                    GiftCard("1234567890",2000.0)
+                )
             ),
             Client("elena28",
                 "gato",
@@ -196,7 +198,7 @@ class FlowManager {
                 println("Ingresa el límite la tarjeta (un número)")
                 val limit = readln().toDouble()
                 val card: CreditCard = CreditCard(cardNumber, name, date, balance, limit)
-                currentClient?.addCreditCard(card)
+                currentClient?.addPaymentMethod(card)
                 return card
             } catch(e: ClassCastException){
                 println("Recuerda ingresar los datos en el formato requerido")
@@ -255,8 +257,8 @@ class FlowManager {
                 }
                 println("Ingresa el balance en la tarjeta (un número)")
                 val balance = readln().toDouble()
-                val card: GiftCard = GiftCard(code, balance)
-                currentClient?.addGiftCard(card)
+                val card = GiftCard(code, balance)
+                currentClient?.addPaymentMethod(card)
                 return card
             } catch(e: ClassCastException){
                 println("Recuerda ingresar los datos en el formato requerido")

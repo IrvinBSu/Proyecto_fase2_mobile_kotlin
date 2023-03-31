@@ -5,7 +5,7 @@ import interfaces.IShow
 
 class Cart: IAdd<Pair<Double, Int>>, IShow<Pair<Double, Int>> {
 
-    private var id:Int = (Math.random() * (1000 + 1)).toInt()
+    private var id:Int = ((Math.random() * 1000) + 1).toInt()
 
     override val items: MutableMap<String, Pair<Double, Int>> = mutableMapOf()
 
@@ -22,8 +22,8 @@ class Cart: IAdd<Pair<Double, Int>>, IShow<Pair<Double, Int>> {
         }
     }
 
-    fun getTotal():Double{
-        var total:Double = 0.0
+    fun getTotal() : Double{
+        var total = 0.0
         items.values.forEach{total += it.first * it.second}
         return total
     }
@@ -34,7 +34,7 @@ class Cart: IAdd<Pair<Double, Int>>, IShow<Pair<Double, Int>> {
         }
 
         itemStrings.forEach{
-            it -> println(it)
+            println(it)
         }
 
         println("Total: ${getTotal()}")

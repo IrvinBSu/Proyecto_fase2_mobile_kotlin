@@ -36,10 +36,4 @@ class Menu {
     fun getTotalItems():Int{
         return menuAvailable.size
     }
-
-    open fun categoriaCTA(): Int{
-        print("Selecciona el numero de opción:")
-        var numeroCategoria= readLine()!!.toInt()
-        return numeroCategoria
-    }
 }
