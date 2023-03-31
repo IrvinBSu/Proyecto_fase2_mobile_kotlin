@@ -1,3 +1,5 @@
+package enums
+
 enum class FoodCategory(val category: String) {
     ARROZ_ORIENTAL("Arroz oriental"),
     YAKIMESHI("Yakimeshi"),

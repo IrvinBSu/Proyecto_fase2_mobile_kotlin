@@ -1,4 +1,5 @@
-import kotlinx.coroutines.GlobalScope
+package models
+
 import java.time.LocalDate
 
 class CreditCard(
@@ -7,7 +8,7 @@ class CreditCard(
     val expirationDate: LocalDate,
     var balance:Double,
     val limit:Double,
-    isDefault:Boolean = false):PaymentMethod(isDefault) {
+    isDefault:Boolean = false): PaymentMethod() {
 
     override fun charge(amount: Double): Boolean {
         if(amount < limit){

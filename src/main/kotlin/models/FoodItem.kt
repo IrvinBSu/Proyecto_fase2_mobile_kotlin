@@ -1,3 +1,7 @@
+package models
+
+import enums.FoodCategory
+
 data class FoodItem(
     val foodCategory: FoodCategory,
     val name: String,

@@ -1,4 +1,9 @@
-class Cart:IAdd<Pair<Double, Int>>, IShow<Pair<Double, Int>> {
+package controllers
+
+import interfaces.IAdd
+import interfaces.IShow
+
+class Cart: IAdd<Pair<Double, Int>>, IShow<Pair<Double, Int>> {
 
     private var id:Int = (Math.random() * (1000 + 1)).toInt()
 

@@ -1,3 +1,5 @@
+package models
+
 data class Client (
     var name: String,
     var password: String,
@@ -21,11 +23,7 @@ data class Client (
         return id
     }
 
-    fun addCreditCard(card:CreditCard){
-        creditCards.add(card)
-    }
-
-    fun addGiftCard(card:GiftCard){
-        giftCards.add(card)
+    fun addPaymentMethod(paymentMethod: PaymentMethod){
+        paymentMethods.add(paymentMethod)
     }
 }

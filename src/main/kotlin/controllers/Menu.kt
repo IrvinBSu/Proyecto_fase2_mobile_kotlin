@@ -1,4 +1,9 @@
-class Menu() {
+package controllers
+
+import enums.FoodCategory
+import models.FoodItem
+
+class Menu {
 
     private val menuAvailable: List<FoodItem> = listOf(
         FoodItem (FoodCategory.ARROZ_ORIENTAL,"Gohan Samurai", "Preparado con tiras de cangrejo, aguacate",85.0),
@@ -24,7 +29,7 @@ class Menu() {
         }
     }
 
-    fun getItem(index:Int):FoodItem{
+    fun getItem(index:Int): FoodItem {
         return menuAvailable[index]
     }
 
