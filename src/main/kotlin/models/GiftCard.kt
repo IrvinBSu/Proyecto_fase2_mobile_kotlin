@@ -1,7 +1,9 @@
+package models
+
 class GiftCard(
     val code: String,
     var balance:Double,
-    isDefault:Boolean = false):PaymentMethod(isDefault) {
+    isDefault:Boolean = false): PaymentMethod() {
 
     override fun charge(amount: Double): Boolean {
         if(amount <= balance){

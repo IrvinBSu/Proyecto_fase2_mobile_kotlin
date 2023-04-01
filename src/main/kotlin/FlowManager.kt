@@ -1,7 +1,7 @@
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import controllers.Cart
+import controllers.Menu
 import kotlinx.coroutines.runBlocking
+import models.*
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.*
@@ -17,8 +17,10 @@ class FlowManager {
         private val clients: MutableList<Client> = mutableListOf(
             Client("juan23",
                 "juan123",
-                mutableListOf(CreditCard("4453045671", "Juan Pérez", LocalDate.parse("2023-05-01"), 5000.0, 3000.0)),
-                mutableListOf(GiftCard("1234567890",2000.0))
+                mutableListOf(
+                    CreditCard("4453045671", "Juan Pérez", LocalDate.parse("2023-05-01"), 5000.0, 3000.0),
+                    GiftCard("1234567890",2000.0)
+                )
             ),
             Client("elena28",
                 "gato",
@@ -135,7 +137,7 @@ class FlowManager {
             }
         }
 
-        fun registerOrder():Order{
+        fun registerOrder(): Order {
             println("Este es nuestro nuevo sistema para ordenar. ¿Qué deseas ordenar?")
             Menu().getMenu()
             var itemSelection : String? = null
@@ -152,7 +154,7 @@ class FlowManager {
             return Order(currentClient?.getId() ?: 0, cart.getTotal(), Date())
         }
 
-        fun goToPayment(ord:Order){
+        fun goToPayment(ord: Order){
             println("Procedamos con el pago")
             println("¿Qué medio deseas utilizar?")
             println("1. Dinero en efectivo")
@@ -178,7 +180,7 @@ class FlowManager {
 
         }
 
-        fun createCreditCard():CreditCard?{
+        fun createCreditCard(): CreditCard?{
             try {
                 println("Ingresa tu número de tarjeta (16 digitos)")
                 val cardNumber:String = readln()
@@ -196,7 +198,7 @@ class FlowManager {
                 println("Ingresa el límite la tarjeta (un número)")
                 val limit = readln().toDouble()
                 val card: CreditCard = CreditCard(cardNumber, name, date, balance, limit)
-                currentClient?.addCreditCard(card)
+                currentClient?.addPaymentMethod(card)
                 return card
             } catch(e: ClassCastException){
                 println("Recuerda ingresar los datos en el formato requerido")
@@ -208,7 +210,7 @@ class FlowManager {
             }
         }
 
-        fun selectCreditCard():CreditCard{
+        fun selectCreditCard(): CreditCard {
             println("Estas son tus tarjetas registradas:")
             var count = 1
             currentClient?.creditCards?.forEach {
@@ -235,10 +237,10 @@ class FlowManager {
 
         fun handleCreditCard(amount:Double):Boolean {
             if(currentClient?.creditCards?.size!! > 0){
-                val card:CreditCard = selectCreditCard()
+                val card: CreditCard = selectCreditCard()
                 return card.charge(amount)
             } else {
-                var card:CreditCard? = createCreditCard()
+                var card: CreditCard? = createCreditCard()
                 while(card == null){
                     card = createCreditCard()
                 }
@@ -246,7 +248,7 @@ class FlowManager {
             }
         }
 
-        fun createGiftCard():GiftCard?{
+        fun createGiftCard(): GiftCard?{
             try {
                 println("Ingresa el código de tu tarjeta de regalo (10 digitos)")
                 val code:String = readln()
@@ -255,8 +257,8 @@ class FlowManager {
                 }
                 println("Ingresa el balance en la tarjeta (un número)")
                 val balance = readln().toDouble()
-                val card: GiftCard = GiftCard(code, balance)
-                currentClient?.addGiftCard(card)
+                val card = GiftCard(code, balance)
+                currentClient?.addPaymentMethod(card)
                 return card
             } catch(e: ClassCastException){
                 println("Recuerda ingresar los datos en el formato requerido")
@@ -268,7 +270,7 @@ class FlowManager {
             }
         }
 
-        fun selectGiftCard():GiftCard{
+        fun selectGiftCard(): GiftCard {
             println("Estas son tus tarjetas de regalo registradas:")
             var count = 1
             currentClient?.giftCards?.forEach {
@@ -295,10 +297,10 @@ class FlowManager {
 
         fun handleGiftCard(amount: Double):Boolean{
             if(currentClient?.giftCards?.size!! > 0){
-                val card:GiftCard = selectGiftCard()
+                val card: GiftCard = selectGiftCard()
                 return card.charge(amount)
             } else {
-                var card:GiftCard? = createGiftCard()
+                var card: GiftCard? = createGiftCard()
                 while(card == null){
                     card = createGiftCard()
                 }

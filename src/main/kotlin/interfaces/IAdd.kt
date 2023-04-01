@@ -1,3 +1,5 @@
+package interfaces
+
 interface IAdd<V> {
     val items:MutableMap<String, V>
 

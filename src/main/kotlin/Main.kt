@@ -1,11 +1,9 @@
-import java.util.Date
-import java.util.concurrent.Flow
-import java.text.SimpleDateFormat;
+import models.Order
 
-fun main(args: Array<String>) {
+fun main() {
 
     FlowManager.start()
-    val ord:Order = FlowManager.registerOrder()
+    val ord: Order = FlowManager.registerOrder()
     FlowManager.goToPayment(ord)
 
 }

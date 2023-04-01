@@ -1,3 +1,7 @@
+package models
+
+import interfaces.IAdd
+import interfaces.IShow
 import java.util.Date
 
 class Order(
