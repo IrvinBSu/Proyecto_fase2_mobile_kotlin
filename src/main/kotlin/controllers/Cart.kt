@@ -8,6 +8,8 @@ class Cart: IAdd<Pair<Double, Int>>, IShow<Pair<Double, Int>> {
     private var id:Int = ((Math.random() * 1000) + 1).toInt()
 
     override val items: MutableMap<String, Pair<Double, Int>> = mutableMapOf()
+    
+    private var orderStatus = listOf("Orden Confirmada...","Preparando...","Alimentos Listos...","Alimentos Entregados...")
 
     override fun addItem(item:String, price:Double, amount:Int){
         val numItems = (items[item]?.second?.plus(amount)) ?: amount
@@ -39,6 +41,13 @@ class Cart: IAdd<Pair<Double, Int>>, IShow<Pair<Double, Int>> {
 
         println("Total: ${getTotal()}")
 
+    }
+    
+    suspend fun deliverOrder(){
+        orderStatus.forEach {
+            delay(500L)
+            println("Estatus: ${it}")
+        }
     }
 
 }
