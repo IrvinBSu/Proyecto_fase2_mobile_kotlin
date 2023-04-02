@@ -2,6 +2,7 @@ package models
 
 import interfaces.IAdd
 import interfaces.IShow
+import kotlinx.coroutines.delay
 import java.util.Date
 
 //clase para representar una orden
@@ -17,6 +18,9 @@ class Order(
 
     //mapa de elementos comprados con sus cantidades
     override val items:MutableMap<String, Int> = mutableMapOf()
+
+    private var orderStatus = listOf("Orden Confirmada...","Preparando...","Alimentos Listos...","Alimentos Entregados...")
+
 
     //añadir un elemento a la orden
     override fun addItem(item:String, value:Int){
@@ -34,6 +38,14 @@ class Order(
         }
 
         println("Total: $total")
+    }
+
+    //mostrar el proceso de la orden
+    suspend fun deliverOrder(){
+        orderStatus.forEach {
+            delay(500L)
+            println("Estatus: $it")
+        }
     }
 
 

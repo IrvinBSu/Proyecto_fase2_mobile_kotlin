@@ -1,5 +1,8 @@
 import controllers.Cart
 import controllers.Menu
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import models.*
 import java.text.SimpleDateFormat
@@ -37,13 +40,12 @@ class FlowManager {
 
         //objetos para el carrito de compras y menú
         private val cart = Cart()
-        private val menu = Menu()
 
         //objeto del cliente actual
         @JvmField
         var currentClient : Client? = null
 
-        //pedir al usuario logearse o crear una cuenta
+        //pedir al usuario loguearse o crear una cuenta
         fun welcome():Int {
 
             println("¡Hola, Bienvenido al restaurante XXX!")
@@ -71,7 +73,7 @@ class FlowManager {
 
         //login para el usuario
         //regresa un booleano que indica si el login fue exitoso
-        fun logIn():Boolean{
+        private fun logIn():Boolean{
             //leer los datos del usuario
             println("Ingresa tus datos:")
             println("Nombre:")
@@ -91,7 +93,7 @@ class FlowManager {
 
         //crear cuenta para el usuario
         //regresa un booleano que indica si fue exitoso
-        fun createAccount():Boolean{
+        private fun createAccount():Boolean{
             //leer el nombre de usuario y verificar que no exista
             println("Ingresa un nombre de usuario:")
             val name = readln()
@@ -106,13 +108,12 @@ class FlowManager {
             //añadirlo a la lista de clientes y al mapa de contraseñas
             clients.add(currentClient!!)
             passwords[name] = password
+            println("Usuario creado")
             return true
         }
 
         //método de inicio de la aplicación
-        fun start(){
-            //obtener la selección inicial
-            val selection = welcome()
+        fun start(selection: Int){
             if(selection == 1){
                 //si la selección es 1 logearse
                 var loginSucess = logIn()
@@ -132,68 +133,94 @@ class FlowManager {
                     creationSuccess = createAccount()
                 }
             }
-            //imprimir un mensaje con el nombre del usuario y la fecha
+        }
+
+        //imprimir un mensaje con el nombre del usuario y la fecha
+        fun greet() = runBlocking{
             println("Bienvenid@ ${currentClient?.name}")
             val formatter = SimpleDateFormat("dd/MM/yyyy")
             val date = Date()
             println("Hoy es " + formatter.format(date))
-        }
-
-        //método para ordenar un elemento del menú
-        fun orderItem():String{
-            var input: String? = null
-            try {
-                //leer un input del usuario y convertirlo a entero
-                input = readln()
-                val selection = input.toInt()
-                if (selection in 1..menu.getTotalItems()){
-                    //si está en un rango válido obtener el elemento
-                    val item = menu.getItem(selection-1)
-                    //leer la cantidad que se ordena
-                    println("¿Cuántos deseas ordenar de este alimento/bebida?")
-                    val amount = readln().toInt()
-                    if(amount in 1 .. 99){
-                        //si la cantidad a ordenar es válida, agregar al carrito
-                        cart.addItem(item.name, Pair(item.price, amount))
-                    } else {
-                        //la cantidad no es válida, lanzar una excepción
-                        throw Exception("Solo puedes agregar entre 1 y 99 unidades")
-                    }
-                } else {
-                    //el número no existe en el menú, lanzar una excepción
-                    throw Exception("Debes ingresar un número entre 1 y ${menu.getTotalItems()}")
-                }
-            } catch (e: ClassCastException) { //manejar errores de conversión
-                println("Debes ingresar un número")
-            } catch (e: Exception) { //mostrar el resto de errores
-                println(e.message)
-                println("Vuelve a intentarlo")
-            } finally {
-                return input!! //en cualquier caso regresar la lectura
+            //mostrar el menú
+            println("Este es nuestro nuevo sistema para ordenar.")
+            GlobalScope.launch{
+                Menu.getMenu()
             }
         }
 
-        //registrar la orden del usuario
-        fun registerOrder(): Order {
-            //mostrar el menú
-            println("Este es nuestro nuevo sistema para ordenar. ¿Qué deseas ordenar?")
-            Menu().getMenu()
-            var itemSelection : String? = null
+
+        //seleccionar la cantidad del alimento
+        private fun chooseAmountItems():Int{
+            //leer la cantidad que se ordena
+            println("¿Cuántos deseas ordenar de este alimento/bebida?")
+            val amount = readln().toInt()
+            if(amount in 1 .. 99){
+                //si la cantidad a ordenar es válida, agregar al carrito
+                return amount
+            } else {
+                //la cantidad no es válida, lanzar una excepción
+                throw Exception("Solo puedes agregar entre 1 y 99 unidades")
+            }
+        }
+
+
+        //método para ordenar un elemento del menú
+        private fun orderItem():Boolean{
+            try {
+                //leer un input del usuario
+                val input = readln().trim()
+                val selection = input.toInt()
+                if (selection in 1..Menu.getTotalItems()){
+                    //si está en un rango válido obtener el elemento
+                    val item = Menu.getItem(selection-1)
+                    val amount = chooseAmountItems()
+                    cart.addItem(item.name, Pair(item.price, amount))
+                    return true
+                } else {
+                    //el número no existe en el menú, lanzar una excepción
+                    throw Exception("Debes ingresar un número entre 1 y ${Menu.getTotalItems()}")
+                }
+            } catch (e: ClassCastException) { //manejar errores de conversión
+                println("Debes ingresar un número")
+                return  false
+            } catch (e: Exception) { //mostrar el resto de errores
+                println(e.message)
+                println("Vuelve a intentarlo")
+                return false
+            }
+        }
+
+        //tomar la orden del usuario
+        fun takeOrder() {
             //se realiza al menos una vez
             do {
                 //registrar la orden del usuario
-                itemSelection =  orderItem()
-                //si no se ha terminado la orden preguntar si desea algo más
-                if(itemSelection != "LISTO") {
-                    println("¿Deseas ordenar algo más? Ingresa LISTO para terminar")
+                println("¿Qué deseas ordenar? Ingresa el número del alimento en el menú")
+                var itemSelection:Boolean = orderItem()
+                while(!itemSelection){
+                    itemSelection = orderItem()
                 }
-            } while(itemSelection != "LISTO") //parar al recibir LISTO
+                //Preguntar si desea algo más
+                println("¿Deseas ordenar algo más? y/n")
+                var input:String = readln()
+                while(input != "y" && input != "n"){
+                    println("Selecciona 'y' o 'n'")
+                    input = readln()
+                }
+            } while(input != "n") //parar al recibir n
+        }
 
+        //registrar la orden del usuario y crear el objeto Order
+        fun registerOrder():Order{
             //mostrar la orden del usuario
             println("¡Perfecto! A continuación se muestra tu orden:")
             cart.showItems()
             //crear y regresar un objeto de la orden
-            return Order(currentClient?.id ?: 0, cart.getTotal(), Date())
+            val ord:Order = Order(currentClient?.id ?: 0, cart.getTotal(), Date())
+            cart.items.forEach{
+                ord.addItem(it.key, it.value.second)
+            }
+            return ord
         }
 
         //ir al pago
@@ -208,9 +235,10 @@ class FlowManager {
             while(true){
                 try {
                     //leer la selección del usuario
-                    val selection = readln().toInt()
+                    val input = readln()
+                    val selection = input.toInt()
                     //de acuerdo a la selección realizar el pago con el método correspondiente al tipo de pago
-                    when(selection){
+                    when(selection) {
                         1 -> makePayment(ord, ::handleMoney, ::end, ::handlePaymentError)
                         2 -> makePayment(ord, ::handleCreditCard, ::end, ::handlePaymentError)
                         3 -> makePayment(ord, ::handleGiftCard, ::end, ::handlePaymentError)
@@ -226,191 +254,71 @@ class FlowManager {
 
         }
 
-        //método para crear una tarjeta de crédito
-        fun createCreditCard(): CreditCard?{
-            try {
-                //leer el número de tarjeta de crédito
-                println("Ingresa tu número de tarjeta (16 digitos)")
-                val cardNumber:String = readln()
-                //lanzar un error si no cumple con la longitud
-                if(cardNumber.length != 16){
-                    throw Exception("El número de tarjeta no tiene la longitud requerida")
-                }
-                //leer nombre
-                println("Ingresa el nombre registrado en la tarjeta")
-                val name:String = readln()
-                //leer fecha de vencimiento y covertirla a LocalDate
-                println("Ingresa la fecha de vencimiento (yyyy-mm)")
-                val readDate:String = readln().trim()
-                readDate.plus("-01")
-                val date:LocalDate = LocalDate.parse(readDate)
-                //leer el balance en la tarjeta
-                println("Ingresa el balance en la tarjeta (un número)")
-                val balance = readln().toDouble()
-                //leer límite de la tarjeta
-                println("Ingresa el límite la tarjeta (un número)")
-                val limit = readln().toDouble()
-                //crear la tarjeta y agregarla al cliente
-                val card: CreditCard = CreditCard(cardNumber, name, date, balance, limit)
-                currentClient?.addPaymentMethod(card)
-                return card
-            } catch(e: ClassCastException){ //manejar excepciones
-                println("Recuerda ingresar los datos en el formato requerido")
-                println("Inténtalo de nuevo")
-                return null
-            } catch(e: Exception){
-                println(e.message)
-                return null
-            }
-        }
-
-        //método para seleccionar una tarjeta de crédito
-        fun selectCreditCard(): CreditCard {
-            //mostrar las tarjetas del usuario
-            println("Estas son tus tarjetas registradas:")
-            var count = 1
-            currentClient?.creditCards?.forEach {
-                println("$count -- ${it.cardNumber} - ${it.name}")
-                count++
-            }
-            //pedirle que seleccione una
-            println("Selecciona una tarjeta")
-
-            while(true){
-                try {
-                    //leer la selección del usuario
-                    val selection = readln().toInt()
-                    if (selection in 1..currentClient?.creditCards?.size!!) {
-                        //si la selección es válida regresar la tarjeta de crédito correspondiente
-                        return currentClient?.creditCards!![selection-1]
-                    } else {
-                        throw Exception("Fuera de rango")
-                    }
-                } catch (e: ClassCastException) { //manejo de excepciones
-                    println("Debes ingresar un número")
-                } catch (e: Exception) {
-                    println("Debes ingresar un número entre 1 y ${currentClient?.creditCards?.size}")
-                }
-            }
-        }
-
         //método para manejar el pago con una tarjeta de crédito
-        fun handleCreditCard(amount:Double):Boolean {
+        private fun handleCreditCard(amount:Double):Boolean {
             if(currentClient?.creditCards?.size!! > 0){
                 //si el usuario tiene registradas tarjetas de crédito pedir que selecciona una
-                val card: CreditCard = selectCreditCard()
+                currentClient?.showCreditCards()
+                val card: CreditCard = currentClient?.selectCreditCard()!!
                 return card.charge(amount)
             } else {
                 //si no crear una nueva tarjeta
-                var card: CreditCard? = createCreditCard()
+                var card: CreditCard? = CreditCard.createCreditCard()
                 //reintentar hasta que funcone el proceso
                 while(card == null){
-                    card = createCreditCard()
+                    card = CreditCard.createCreditCard()
                 }
+                currentClient?.addPaymentMethod(card)
                 return card.charge(amount)
             }
         }
 
         //método para manejar el pago con una tarjeta de regalo
-        fun createGiftCard(): GiftCard?{
-            try {
-                //leer el código de la tarjeta
-                println("Ingresa el código de tu tarjeta de regalo (10 digitos)")
-                val code:String = readln()
-                //lanzar una excepción si no tiene el tamaño requerido
-                if(code.length != 10){
-                    throw Exception("El número de tarjeta no tiene la longitud requerida")
-                }
-                //leer el balance de la tarjeta
-                println("Ingresa el balance en la tarjeta (un número)")
-                val balance = readln().toDouble()
-                //crear la tarjeta y agregarla para el cliente
-                val card = GiftCard(code, balance)
-                currentClient?.addPaymentMethod(card)
-                return card
-            } catch(e: ClassCastException){ //manejo de excepciones
-                println("Recuerda ingresar los datos en el formato requerido")
-                println("Inténtalo de nuevo")
-                return null
-            } catch(e: Exception){
-                println(e.message)
-                return null
-            }
-        }
-
-        //método para seleccionar una tarjeta de regalo
-        fun selectGiftCard(): GiftCard {
-            //mostrar las tarjetas de crédito disponibles para el usuario
-            println("Estas son tus tarjetas de regalo registradas:")
-            var count = 1
-            currentClient?.giftCards?.forEach {
-                println("$count -- ${it.code}")
-                count++
-            }
-            println("Selecciona una tarjeta")
-
-            while(true){
-                try {
-                    //leer la selección de una tarjeta
-                    val selection = readln().toInt()
-                    if (selection in 1..currentClient?.giftCards?.size!!) {
-                        //si la selección es válida regresar la tarjeta
-                        return currentClient?.giftCards!![selection-1]
-                    } else {
-                        throw Exception("Fuera de rango")
-                    }
-                } catch (e: ClassCastException) { //manejo de excepciones
-                    println("Debes ingresar un número")
-                } catch (e: Exception) {
-                    println("Debes ingresar un número entre 1 y ${currentClient?.giftCards?.size}")
-                }
-            }
-        }
-
-        //método para manejar el pago con una tarjeta de regalo
-        fun handleGiftCard(amount: Double):Boolean{
+        private fun handleGiftCard(amount: Double):Boolean{
             if(currentClient?.giftCards?.size!! > 0){
                 //si se tienen tarjetas registradas pedir que se seleccione una
-                val card: GiftCard = selectGiftCard()
+                currentClient?.showGiftCards()
+                val card: GiftCard = currentClient?.selectGiftCard()!!
                 //cargar a la tarjeta el pago
                 return card.charge(amount)
             } else {
                 //si no crear una nueva
-                var card: GiftCard? = createGiftCard()
+                var card: GiftCard? = GiftCard.createGiftCard()
                 //se repite el proceso hasta que sea exitoso
                 while(card == null){
-                    card = createGiftCard()
+                    card = GiftCard.createGiftCard()
                 }
+                currentClient?.addPaymentMethod(card)
                 //cargar a la tarjeta el pago
                 return card.charge(amount)
             }
         }
 
         //método para manejar el pago con dinero
-        fun handleMoney(amount: Double):Boolean{
+        private fun handleMoney(amount: Double):Boolean{
             return Money().charge(amount)
         }
 
         //realizar el pago
         //es una función de orden mayor
         //recibe una orden, un handler para el pago y métodos en caso de éxito o de error
-        fun makePayment(
+        private fun makePayment(
             ord: Order,
             paymentHandler: (amount:Double)->Boolean,
-            onSuccess: ()->Unit,
-            onError:()->Unit) = runBlocking {
-            val orderProcess = launch{
-                cart.deliverOrder()
-            }
-            var paymentProcess= launch{
+            onSuccess: (Order) ->Unit,
+            onError: (Order) -> Unit) = runBlocking {
+
+            println("Procesando pago...")
+            //lanzar validación del pago
+            val paymentProcess= launch{
+                delay(1000L)
                 if(paymentHandler(ord.total)){
-                    delay(500L)
-                    onSuccess()
+                    //si el pago es exitoso ir al método de éxito
+                    ord.deliverOrder()
+                    onSuccess(ord)
                 } else {
-                    println("Procesando pago...")
-                    orderProcess.cancel()
-                    onError()
-                    goToPayment(ord)
+                    //si el pago falla cancelar proceso de la orden ir al método de error
+                    onError(ord)
                 }
 
             }
@@ -418,17 +326,18 @@ class FlowManager {
         }
 
         //método para terminar el proceso
-        fun end(){
+        private fun end(ord:Order){
             //se muestra que la orden fue completa
+            currentClient?.addOrder(ord);
             println("Tu orden ha sido completada y en un momento será entregada")
             println("¡Qué la difrutes!")
         }
 
         //método para manejar errores de pago
-        fun handlePaymentError(ord: Order){
+        private fun handlePaymentError(ord:Order){
             println("Ocurrió un error con el pago")
             println("Intenta de nuevo")
-            //regresar a la selección de métodos de pago
+            //regresar a las opciones de pago
             goToPayment(ord)
         }
     }

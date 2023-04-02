@@ -20,4 +20,45 @@ class GiftCard(
             return false
         }
     }
+
+    companion object {
+        //método para crear una tarjeta de regalo con input del usuario
+
+        //leer el código de la tarjeta
+        private fun readCode():String {
+            //leer el código de la tarjeta
+            println("Ingresa el código de tu tarjeta de regalo (10 digitos)")
+            val code: String = readln()
+            //lanzar una excepción si no tiene el tamaño requerido
+            if (code.length != 10) {
+                throw Exception("El número de tarjeta no tiene la longitud requerida")
+            }
+            return code;
+        }
+
+        //leer el balance de la tarjeta
+        private fun readBalance():Double{
+            println("Ingresa el balance en la tarjeta (un número)")
+            val balance = readln().toDouble()
+            return balance;
+        }
+
+        //crear una tarjeta de regalo
+        fun createGiftCard(): GiftCard? {
+            try {
+                val code = readCode()
+                val balance = readBalance()
+                //crear la tarjeta
+                val card = GiftCard(code, balance)
+                return card
+            } catch (e: ClassCastException) { //manejo de excepciones
+                println("Recuerda ingresar los datos en el formato requerido")
+                println("Inténtalo de nuevo")
+                return null
+            } catch (e: Exception) {
+                println(e.message)
+                return null
+            }
+        }
+    }
 }

@@ -2,6 +2,7 @@ package controllers
 
 import interfaces.IAdd
 import interfaces.IShow
+import kotlinx.coroutines.delay
 
 //clase del carrito de compras
 //implementa IAdd e ISgiw
@@ -9,8 +10,6 @@ class Cart: IAdd<Pair<Double, Int>>, IShow<Pair<Double, Int>> {
 
     //elementos del carrito con su cantidad y precio unitario
     override val items: MutableMap<String, Pair<Double, Int>> = mutableMapOf()
-    
-    private var orderStatus = listOf("Orden Confirmada...","Preparando...","Alimentos Listos...","Alimentos Entregados...")
 
     //agregar un elemento, recibe el nombre del item y un par(precio, cantidad)
     override fun addItem(item:String, value:Pair<Double, Int>){
@@ -50,12 +49,6 @@ class Cart: IAdd<Pair<Double, Int>>, IShow<Pair<Double, Int>> {
         println("Total: ${getTotal()}")
 
     }
-    
-    suspend fun deliverOrder(){
-        orderStatus.forEach {
-            delay(500L)
-            println("Estatus: ${it}")
-        }
-    }
+
 
 }
