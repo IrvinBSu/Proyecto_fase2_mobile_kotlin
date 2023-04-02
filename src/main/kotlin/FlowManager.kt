@@ -398,14 +398,23 @@ class FlowManager {
             ord: Order,
             paymentHandler: (amount:Double)->Boolean,
             onSuccess: ()->Unit,
-            onError:(Order)->Unit) = runBlocking {
-            if(paymentHandler(ord.total)){
-                //Si la orden se realiza con exito llamar onSucess()
-                onSuccess()
-            } else {
-                //Si ocurre cualquier error ir a onError()
-                onError(ord)
+            onError:()->Unit) = runBlocking {
+            val orderProcess = launch{
+                cart.deliverOrder()
             }
+            var paymentProcess= launch{
+                if(paymentHandler(ord.total)){
+                    delay(500L)
+                    onSuccess()
+                } else {
+                    println("Procesando pago...")
+                    orderProcess.cancel()
+                    onError()
+                    goToPayment(ord)
+                }
+
+            }
+            paymentProcess.join()
         }
 
         //método para terminar el proceso
