@@ -17,11 +17,11 @@ Adicional se busca demostrar los conocimientos adquiridos durante el módulo.
 - Clona este proyecto
 - Asegurate de revisar la configuración del proyecto
 - Corre el proyecto. 
-- Lo primero que tendrás que realizar es crear una cuenta o iniciar sesión. Por default creamos algunos usuarios. Si lo prefieres puedes utilizar **juan23** como usuario y **juan123** como contraseña
+- Lo primero que tendrás que realizar es crear una cuenta o iniciar sesión. Por default creamos algunos usuarios *en la clase FlowManager). Si lo prefieres puedes utilizar **juan23** como usuario y **juan123** como contraseña
 - Después podrás observar el menú del restaurante
 - Las opciones que desees agregar a tu orden tienes que indicarlas con el número con el que se enlistan
-- Para dejar de agregar opciones, escribe **LISTO** para proceder a las opciones de pago
+- Para dejar de agregar opciones, escribe **n** para proceder a las opciones de pago
 - Tendrás 3 opciones de pago: efectivo, tarjeta y tarjeta de regalo. Indica el número del método de pago que quieres utilizar
-- En caso de tarjeta y tarjeta de regalo tienes que seleccionar alguna de las opciones que tienes registradas
+- En caso de tarjeta y tarjeta de regalo tienes que seleccionar alguna de las opciones que tienes registradas. Si no tienes registrada alguna podrás registrar una.
 - Si el método de pago seleccionado tiene fondos insuficientes, te indicaremos que selecciones otro método de pago
 - Si tu pago se procesa de manera exitosa, te lo indicaremos y podrás revisar cómo se va el estatus de tu orden para tener tus alimentos
