@@ -1,32 +1,30 @@
 package models
 
-data class Client (
+//clase Cliente
+//se guarda nombre, contraseña, métodos de pago y órdenes previas
+class Client (
     var name: String,
     var password: String,
     var paymentMethods: MutableList<PaymentMethod> = mutableListOf(),
     val orders:MutableList<Order> = mutableListOf()
 ){
     val creditCards : List<CreditCard>
-        get() = paymentMethods.filterIsInstance<CreditCard>().toList()
+        //obtener solo las tarjetas de crédito de la lista de métodos de pago
+        get() = paymentMethods.filterIsInstance<CreditCard>().toMutableList()
 
     val giftCards : List<GiftCard>
-        get() = paymentMethods.filterIsInstance<GiftCard>().toList()
+        //obtener solo las tarjetas de regalo de la lista de métodos de pago
+        get() = paymentMethods.filterIsInstance<GiftCard>().toMutableList()
 
-    private var id:Int = (Math.random() * (1000 + 1)).toInt()
+    //identificador generado aleatoriamente
+    var id:Int = (Math.random() * (1000 + 1)).toInt()
+        get() = id
 
     init {
         println("Usuario creado")
     }
 
-    fun updateProfile(name: String, password: String){
-        this.name = name
-        this.password = password
-    }
-
-    fun getId():Int{
-        return id
-    }
-
+    //añadir un método de pago a la lista
     fun addPaymentMethod(paymentMethod: PaymentMethod){
         paymentMethods.add(paymentMethod)
     }
