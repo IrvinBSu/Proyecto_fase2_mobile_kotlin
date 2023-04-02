@@ -317,12 +317,21 @@ class FlowManager {
             paymentHandler: (amount:Double)->Boolean,
             onSuccess: ()->Unit,
             onError:()->Unit) = runBlocking {
-            if(paymentHandler(ord.total)){
-                onSuccess()
-            } else {
-                onError()
-                goToPayment(ord)
+            val orderProcess = launch{
+                cart.deliverOrder()
             }
+            var paymentProcess= launch{
+                if(paymentHandler(ord.total)){
+                    delay(500L)
+                    onSuccess()
+                } else {
+                    println("Procesando pago...")
+                    orderProcess.cancel()
+                    onError()
+                    goToPayment(ord)
+                }
+            }
+            paymentProcess.join()
         }
 
         fun end(){
